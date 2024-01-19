@@ -1276,6 +1276,13 @@ static int key_type(int type)
 
 // ssl_init() is thread safe
 
+gnutls_datum_t *wget_gnutls_get_cafile_from_mem(void) {
+	gnutls_datum_t *cabundle = (gnutls_datum_t *)malloc(sizeof(gnutls_datum_t));
+	cabundle->data = wget_strdup(wget_ssl_ca_bundle_buffer());
+	cabundle->len = wget_ssl_ca_bundle_buffer_len();
+	return cabundle;
+}
+
 static void set_credentials(gnutls_certificate_credentials_t creds)
 {
 	if (config.cert_file && !config.key_file) {
@@ -1302,8 +1309,10 @@ static void set_credentials(gnutls_certificate_credentials_t creds)
 	if (config.ca_file && !wget_strcmp(config.ca_file, "system"))
 		config.ca_file = wget_ssl_default_ca_bundle_path();
 	if (config.ca_file) {
-		if (gnutls_certificate_set_x509_trust_file(creds, config.ca_file, key_type(config.ca_type)) <= 0)
-			error_printf(_("No CAs were found in '%s'\n"), config.ca_file);
+		/*if (gnutls_certificate_set_x509_trust_file(creds, config.ca_file, key_type(config.ca_type)) <= 0)*/
+		gnutls_datum_t *cabundle = wget_gnutls_get_cafile_from_mem();
+		if(gnutls_certificate_set_x509_trust_mem(creds, cabundle, key_type(config.ca_type)) <= 0)
+			error_printf(_("No CAs were found in memory\n"));
 	}
 }
 

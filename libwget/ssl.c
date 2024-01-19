@@ -82,4 +82,8 @@ const char *wget_ssl_ca_bundle_buffer(void) {
 		return ssl_ca_bundle_pem;
 }
 
+unsigned int wget_ssl_ca_bundle_buffer_len(void) {
+	return ssl_ca_bundle_pem_len;
+}
+
 #endif
