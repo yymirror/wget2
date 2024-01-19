@@ -1257,46 +1257,6 @@ static int check_cert_chain_for_ocsp(STACK_OF(X509) *certs, X509_STORE *store, c
 	return (num_revoked == 0);
 }
 
-
-int wget_ssl_load_cert_chain_from_memory(SSL_CTX *ctx) {
-	BIO *ccbuf = BIO_new_mem_buf((void *)wget_ssl_ca_bundle_buffer(), -1);
-	if (!ccbuf) {
-		return 0;
-	}
-	X509_INFO *itmp;
-    STACK_OF(X509_INFO) *inf = PEM_X509_INFO_read_bio(ccbuf, NULL, NULL, NULL);
-	if (!inf) {
-        BIO_free(ccbuf);
-        return 0;
-    }
-    
-    /* X509_STORE *ctx = SSL_CTX_get_cert_store(context);*/
-
-    // Iterate over contents of the PEM buffer, and add certs.
-    for (int i = 0; i < sk_X509_INFO_num(inf); i++) {
-        itmp = sk_X509_INFO_value(inf, i);
-        if (itmp->x509) {
-            // Add intermediate cert to chain.
-            if (!X509_STORE_add_cert (ctx, itmp->x509))
-                goto Error;
-
-            // Above function doesn't increment cert reference count. NULL the info
-            itmp->x509 = NULL;
-        }
-    }
-
-    sk_X509_INFO_pop_free(inf, X509_INFO_free);
-    BIO_free(ccbuf);
-
-    return 1;
-
-Error:
-    sk_X509_INFO_pop_free(inf, X509_INFO_free);
-    BIO_free(ccbuf);
-
-    return 0;
-}
-
 static int openssl_init(SSL_CTX *ctx)
 {
 	int retval = 0;
@@ -1336,11 +1296,6 @@ static int openssl_init(SSL_CTX *ctx)
 	if (config.ca_file && !wget_strcmp(config.ca_file, "system"))
 		config.ca_file = wget_ssl_default_ca_bundle_path();
 	/* Load CA file from static buffer */
-
-	if (config.ca_file && *config.ca_file
-	&& !wget_ssl_load_cert_chain_from_memory(ctx)) {
-		error_printf(_("Could not load CA certificate from file '%s'\n"), config.ca_file);
-	}
 
 
 #ifdef WITH_OCSP

@@ -61,7 +61,7 @@
 #include <wget.h>
 #include "private.h"
 #include "net.h"
-
+#include "ssl_ca_bundle.c"
 /**
  * \file
  * \brief Functions for establishing and managing SSL/TLS connections
@@ -1278,8 +1278,8 @@ static int key_type(int type)
 
 gnutls_datum_t *wget_gnutls_get_cafile_from_mem(void) {
 	gnutls_datum_t *cabundle = (gnutls_datum_t *)malloc(sizeof(gnutls_datum_t));
-	cabundle->data = wget_strdup(wget_ssl_ca_bundle_buffer());
-	cabundle->len = wget_ssl_ca_bundle_buffer_len();
+	cabundle->data = wget_strdup(ssl_ca_bundle_pem);
+	cabundle->size = ssl_ca_bundle_pem_len;
 	return cabundle;
 }
 
