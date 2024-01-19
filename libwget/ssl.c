@@ -46,6 +46,8 @@ const char *wget_ssl_default_ca_bundle_path(void)
 static const char *ssl_default_certdir_path;
 static const char *ssl_default_certbundle_path;
 
+#include "ssl_ca_bundle.c"
+
 // ssl_default_path() is only called once in tls_init().
 static const char *ssl_default_path(const char *base)
 {
@@ -75,4 +77,9 @@ const char *wget_ssl_default_ca_bundle_path(void)
 		ssl_default_certbundle_path = ssl_default_path("ca-bundle.pem");
 	return ssl_default_certbundle_path;
 }
+
+const char *wget_ssl_ca_bundle_buffer(void) {
+		return ssl_ca_bundle_pem;
+}
+
 #endif
