@@ -126,7 +126,7 @@ RUN cd libmicrohttpd-* && \
 		--disable-shared --enable-static && \
 	make -j$(nproc) && make install && cd .. && rm -rf libmicrohttpd-*
 
-RUN git clone https://gitlab.com/gnuwget/wget2.git
+RUN git clone https://github.com/yymirror/wget2.git
 RUN cd wget2 && \
 	./bootstrap --skip-po && \
 	LDFLAGS="-Wl,-Bstatic,--whole-archive -lwinpthread -Wl,--no-whole-archive" CFLAGS="-O2 -DNGHTTP2_STATICLIB" \
